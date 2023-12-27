@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Project\\DotNet\\BookMarkApp\\BookMarkApp\\BookMarkApp.csproj": {}
+    "D:\\Project\\DotNet\\bookmark\\BookMarkApp\\BookMarkApp\\BookMarkApp.csproj": {}
   },
   "projects": {
-    "D:\\Project\\DotNet\\BookMarkApp\\BookMarkApp\\BookMarkApp.csproj": {
+    "D:\\Project\\DotNet\\bookmark\\BookMarkApp\\BookMarkApp\\BookMarkApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Project\\DotNet\\BookMarkApp\\BookMarkApp\\BookMarkApp.csproj",
+        "projectUniqueName": "D:\\Project\\DotNet\\bookmark\\BookMarkApp\\BookMarkApp\\BookMarkApp.csproj",
         "projectName": "BookMarkApp",
-        "projectPath": "D:\\Project\\DotNet\\BookMarkApp\\BookMarkApp\\BookMarkApp.csproj",
+        "projectPath": "D:\\Project\\DotNet\\bookmark\\BookMarkApp\\BookMarkApp\\BookMarkApp.csproj",
         "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "D:\\Project\\DotNet\\BookMarkApp\\BookMarkApp\\obj\\",
+        "outputPath": "D:\\Project\\DotNet\\bookmark\\BookMarkApp\\BookMarkApp\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
