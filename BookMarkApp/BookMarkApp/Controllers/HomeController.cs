@@ -17,20 +17,42 @@ namespace BookMarkApp.Controllers
         {
             _logger = logger;
         }
-
         public async Task<IActionResult> Index()
         {
-            var books = new List<Book>();
-            var url = "https://www.rokomari.com/book/15991/bangali-musulmaner-mon";
-            var book = await BookInfo.GetBookDetails(url);
-            books.Add(book);
-            var bytes = BookInfo.makeExcel(books);
 
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Index(string urls)
+        {
+            try
+            {
+                var books = new List<Book>();
+                var urlArray = urls.Trim().Split(',');
+                if (urlArray.Length ==1)
+                {
+                    urlArray = urls.Split("\r\n");
+                    urlArray = urlArray.Where(f=>f.Length > 1).ToArray();
+                }
+                // var url = "https://www.rokomari.com/book/15991/bangali-musulmaner-mon";
+                foreach (var url in urlArray)
+                {
+                    var urlstring = url.Replace("\r\n", "");
+                    var book = await BookInfo.GetBookDetails(urlstring.Trim());
+                    books.Add(book);
+                }
 
-            var content = new System.IO.MemoryStream(bytes);
-            var contentType = "APPLICATION/octet-stream";
-            var fileName = "something.csv";
-            return File(content, contentType, fileName);
+                var bytes = BookInfo.makeExcel(books);
+
+                var content = new System.IO.MemoryStream(bytes);
+                var contentType = "APPLICATION/octet-stream";
+                var fileName = "something.csv";
+                return File(content, contentType, fileName); //email to the copy
+            }
+            catch (Exception ex)
+            {
+                return Content(ex.Message);
+            }
         }
 
         public IActionResult Privacy()

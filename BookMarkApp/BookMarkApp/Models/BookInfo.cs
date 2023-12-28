@@ -11,35 +11,50 @@ namespace BookMarkApp.Models
     {
         public static async Task<Book> GetBookDetails(string url)
         {
+            try
+            {
+
+            var rokomari = url.Contains("rokomari");
+            if (!Uri.IsWellFormedUriString(url, UriKind.Absolute) || !rokomari)
+            {
+                return new Book() { Title = "Invalid", Link = url};
+            }
             var Webget = new HtmlWeb();
             var doc = await Webget.LoadFromWebAsync(url);
-            var book = new Book();
+            var book = new Book() { Link = url };
             var cols = doc.DocumentNode.SelectNodes("//table[@class='table table-bordered']//tr//td");
-            for (int i = 0; i < cols.Count; i = i + 2)
+            for (int i = 0; cols != null && i < cols.Count; i = i + 2)
             {
                 string name = string.Join("", cols[i].InnerText.Trim().Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
                 string value = cols[i + 1].InnerText;
                 book.SetValue(name, value);
             }
-            book.Price = doc.DocumentNode.SelectNodes("//div[@class='details-book-info__content-book-price']//strike[@class='original-price']")[0].InnerText.Trim();
+            book.Price = doc.DocumentNode.SelectNodes("//div[@class='details-book-info__content-book-price']//strike[@class='original-price']")?[0].InnerText.Trim();
 
-            book.SellPrice = doc.DocumentNode.SelectNodes("//div[@class='details-book-info__content-book-price']//span[@class='sell-price']")[0].InnerText.Trim();
+            book.SellPrice = doc.DocumentNode.SelectNodes("//div[@class='details-book-info__content-book-price']//span[@class='sell-price']")?[0].InnerText.Trim();
 
-            book.Discount = doc.DocumentNode.SelectNodes("//div[@class='details-book-info__content-book-price']//span[@class='js--save-message']")[0].InnerText.Trim();
+            book.Discount = doc.DocumentNode.SelectNodes("//div[@class='details-book-info__content-book-price']//span[@class='js--save-message']")?[0].InnerText.Trim();
 
             var category = doc.DocumentNode.SelectNodes("//div[@class='details-book-info__content-category d-flex align-items-center']//a");
-            book.Category = category[0].InnerText.Trim();
-            book.CategoryLink = string.Concat(url.Split("com")[0], "com",category[0].Attributes["href"].Value);
+            book.Category = category?[0].InnerText.Trim();
+            book.CategoryLink = string.Concat(url.Split("com")?[0], "com",category?[0].Attributes["href"].Value);
 
-            book.BookImg = doc.DocumentNode.SelectNodes("//div//div//div//div//div[@class='image-container']//img")[0].Attributes["src"].Value;
+            book.BookImg = doc.DocumentNode.SelectNodes("//div//div//div//div//div[@class='image-container']//img")?[0].Attributes["src"].Value;
 
-            book.Summary = doc.DocumentNode.SelectNodes("//div[@id='js--summary-description']")[0].InnerText;
+            book.Summary = doc.DocumentNode.SelectNodes("//div[@id='js--summary-description']")?[0].InnerText;
 
-            //var authorName = doc.DocumentNode.SelectNodes("//div[@class='col author_des']//p")[0].InnerText;
+            //var authorName = doc.DocumentNode.SelectNodes("//div[@class='col author_des']//p")?[0].InnerText;
 
-            book.AuthorDescription = doc.DocumentNode.SelectNodes("//div[@class='col author_des']//div")[0].InnerText;
+            book.AuthorDescription = doc.DocumentNode.SelectNodes("//div[@class='col author_des']//div")?[0].InnerText;
 
             return book;
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
 
         public static byte[] makeExcel(List<Book> books)
@@ -126,5 +141,6 @@ namespace BookMarkApp.Models
         public string Language { get; set; }
         public string CategoryLink { get; set; }
         public string Tag { get; set; }
+        public string Link { get; set; }
     }
 }
