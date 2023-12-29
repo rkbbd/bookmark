@@ -1850,7 +1850,7 @@
         ...Manipulator.getDataAttributes(this._element),
         ...config
       };
-      config.toggle = Boolean(config.toggle); // Coerce string values
+      config.toggle = Boolean(config.toggle); // Coerce string fields
 
       config.parent = getElement(config.parent);
       typeCheckConfig(NAME$a, config, DefaultType$9);
@@ -4163,8 +4163,8 @@
           config[key] = this._config[key];
         }
       } // In the future can be replaced with:
-      // const keysWithDifferentValues = Object.entries(this._config).filter(entry => this.constructor.Default[entry[0]] !== this._config[entry[0]])
-      // `Object.fromEntries(keysWithDifferentValues)`
+      // const keysWithDifferentfields = Object.entries(this._config).filter(entry => this.constructor.Default[entry[0]] !== this._config[entry[0]])
+      // `Object.fromEntries(keysWithDifferentfields)`
 
 
       return config;

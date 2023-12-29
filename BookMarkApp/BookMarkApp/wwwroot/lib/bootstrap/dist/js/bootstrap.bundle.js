@@ -1828,7 +1828,7 @@
         ...Manipulator.getDataAttributes(this._element),
         ...config
       };
-      config.toggle = Boolean(config.toggle); // Coerce string values
+      config.toggle = Boolean(config.toggle); // Coerce string fields
 
       config.parent = getElement(config.parent);
       typeCheckConfig(NAME$a, config, DefaultType$9);
@@ -2045,7 +2045,7 @@
       Object.keys(state.elements).forEach(function (name) {
         var element = state.elements[name];
         var attributes = state.attributes[name] || {};
-        var styleProperties = Object.keys(state.styles.hasOwnProperty(name) ? state.styles[name] : initialStyles[name]); // Set all values to an empty string to unset them
+        var styleProperties = Object.keys(state.styles.hasOwnProperty(name) ? state.styles[name] : initialStyles[name]); // Set all fields to an empty string to unset them
 
         var style = styleProperties.reduce(function (style, property) {
           style[property] = '';
@@ -2089,7 +2089,7 @@
     var scaleY = 1;
 
     if (isHTMLElement(element) && includeScale) {
-      // Fallback to 1 in case both values are `0`
+      // Fallback to 1 in case both fields are `0`
       scaleX = rect.width / element.offsetWidth || 1;
       scaleY = rect.height / element.offsetHeight || 1;
     }
@@ -2364,7 +2364,7 @@
     left: 'auto'
   }; // Round the offsets to the nearest suitable subpixel based on the DPR.
   // Zooming can change the DPR, but it seems to report a value that will
-  // cleanly divide the values into the appropriate subpixels.
+  // cleanly divide the fields into the appropriate subpixels.
 
   function roundOffsetsByDPR(_ref) {
     var x = _ref.x,
@@ -3447,7 +3447,7 @@
         data: Object.assign({}, existing.data, current.data)
       }) : current;
       return merged;
-    }, {}); // IE11 does not support Object.values
+    }, {}); // IE11 does not support Object.fields
 
     return Object.keys(merged).map(function (key) {
       return merged[key];
@@ -5917,8 +5917,8 @@
           config[key] = this._config[key];
         }
       } // In the future can be replaced with:
-      // const keysWithDifferentValues = Object.entries(this._config).filter(entry => this.constructor.Default[entry[0]] !== this._config[entry[0]])
-      // `Object.fromEntries(keysWithDifferentValues)`
+      // const keysWithDifferentfields = Object.entries(this._config).filter(entry => this.constructor.Default[entry[0]] !== this._config[entry[0]])
+      // `Object.fromEntries(keysWithDifferentfields)`
 
 
       return config;

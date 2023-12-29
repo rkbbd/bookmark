@@ -22,7 +22,7 @@
         adapters,
         data_validation = "unobtrusiveValidation";
 
-    function setValidationValues(options, ruleName, value) {
+    function setValidationfields(options, ruleName, value) {
         options.rules[ruleName] = value;
         if (options.message) {
             options.messages[ruleName] = options.message;
@@ -195,20 +195,20 @@
             $.each(this.adapters, function () {
                 var prefix = "data-val-" + this.name,
                     message = $element.attr(prefix),
-                    paramValues = {};
+                    paramfields = {};
 
                 if (message !== undefined) {  // Compare against undefined, because an empty message is legal (and falsy)
                     prefix += "-";
 
                     $.each(this.params, function () {
-                        paramValues[this] = $element.attr(prefix + this);
+                        paramfields[this] = $element.attr(prefix + this);
                     });
 
                     this.adapt({
                         element: element,
                         form: form,
                         message: message,
-                        params: paramValues,
+                        params: paramfields,
                         rules: rules,
                         messages: messages
                     });
@@ -226,7 +226,7 @@
             /// <summary>
             /// Parses all the HTML elements in the specified selector. It looks for input elements decorated
             /// with the [data-val=true] attribute value and enables validation according to the data-val-*
-            /// attribute values.
+            /// attribute fields.
             /// </summary>
             /// <param name="selector" type="String">Any valid jQuery selector.</param>
 
@@ -261,7 +261,7 @@
         /// <param name="params" type="Array" optional="true">[Optional] An array of parameter names (strings) that will
         /// be extracted from the data-val-nnnn-mmmm HTML attributes (where nnnn is the adapter name, and
         /// mmmm is the parameter name).</param>
-        /// <param name="fn" type="Function">The function to call, which adapts the values from the HTML
+        /// <param name="fn" type="Function">The function to call, which adapts the fields from the HTML
         /// attributes into jQuery Validate rules and/or messages.</param>
         /// <returns type="jQuery.validator.unobtrusive.adapters" />
         if (!fn) {  // Called with no params, just a function
@@ -274,14 +274,14 @@
 
     adapters.addBool = function (adapterName, ruleName) {
         /// <summary>Adds a new adapter to convert unobtrusive HTML into a jQuery Validate validation, where
-        /// the jQuery Validate validation rule has no parameter values.</summary>
+        /// the jQuery Validate validation rule has no parameter fields.</summary>
         /// <param name="adapterName" type="String">The name of the adapter to be added. This matches the name used
         /// in the data-val-nnnn HTML attribute (where nnnn is the adapter name).</param>
         /// <param name="ruleName" type="String" optional="true">[Optional] The name of the jQuery Validate rule. If not provided, the value
         /// of adapterName will be used instead.</param>
         /// <returns type="jQuery.validator.unobtrusive.adapters" />
         return this.add(adapterName, function (options) {
-            setValidationValues(options, ruleName || adapterName, true);
+            setValidationfields(options, ruleName || adapterName, true);
         });
     };
 
@@ -307,13 +307,13 @@
                 max = options.params.max;
 
             if (min && max) {
-                setValidationValues(options, minMaxRuleName, [min, max]);
+                setValidationfields(options, minMaxRuleName, [min, max]);
             }
             else if (min) {
-                setValidationValues(options, minRuleName, min);
+                setValidationfields(options, minRuleName, min);
             }
             else if (max) {
-                setValidationValues(options, maxRuleName, max);
+                setValidationfields(options, maxRuleName, max);
             }
         });
     };
@@ -329,7 +329,7 @@
         /// of adapterName will be used instead.</param>
         /// <returns type="jQuery.validator.unobtrusive.adapters" />
         return this.add(adapterName, [attribute || "val"], function (options) {
-            setValidationValues(options, ruleName || adapterName, options.params[attribute]);
+            setValidationfields(options, ruleName || adapterName, options.params[attribute]);
         });
     };
 
@@ -376,12 +376,12 @@
             fullOtherName = appendModelPrefix(other, prefix),
             element = $(options.form).find(":input").filter("[name='" + escapeAttributeValue(fullOtherName) + "']")[0];
 
-        setValidationValues(options, "equalTo", element);
+        setValidationfields(options, "equalTo", element);
     });
     adapters.add("required", function (options) {
         // jQuery Validate equates "required" with "mandatory" for checkbox elements
         if (options.element.tagName.toUpperCase() !== "INPUT" || options.element.type.toUpperCase() !== "CHECKBOX") {
-            setValidationValues(options, "required", true);
+            setValidationfields(options, "required", true);
         }
     });
     adapters.add("remote", ["url", "type", "additionalfields"], function (options) {
@@ -396,7 +396,7 @@
             var paramName = appendModelPrefix(fieldName, prefix);
             value.data[paramName] = function () {
                 var field = $(options.form).find(":input").filter("[name='" + escapeAttributeValue(paramName) + "']");
-                // For checkboxes and radio buttons, only pick up values from checked fields.
+                // For checkboxes and radio buttons, only pick up fields from checked fields.
                 if (field.is(":checkbox")) {
                     return field.filter(":checked").val() || field.filter(":hidden").val() || '';
                 }
@@ -407,21 +407,21 @@
             };
         });
 
-        setValidationValues(options, "remote", value);
+        setValidationfields(options, "remote", value);
     });
     adapters.add("password", ["min", "nonalphamin", "regex"], function (options) {
         if (options.params.min) {
-            setValidationValues(options, "minlength", options.params.min);
+            setValidationfields(options, "minlength", options.params.min);
         }
         if (options.params.nonalphamin) {
-            setValidationValues(options, "nonalphamin", options.params.nonalphamin);
+            setValidationfields(options, "nonalphamin", options.params.nonalphamin);
         }
         if (options.params.regex) {
-            setValidationValues(options, "regex", options.params.regex);
+            setValidationfields(options, "regex", options.params.regex);
         }
     });
     adapters.add("fileextensions", ["extensions"], function (options) {
-        setValidationValues(options, "extension", options.params.extensions);
+        setValidationfields(options, "extension", options.params.extensions);
     });
 
     $(function () {

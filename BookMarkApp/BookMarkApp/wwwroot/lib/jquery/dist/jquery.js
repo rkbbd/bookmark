@@ -279,7 +279,7 @@ jQuery.extend = jQuery.fn.extend = function() {
 
 	for ( ; i < length; i++ ) {
 
-		// Only deal with non-null/undefined values
+		// Only deal with non-null/undefined fields
 		if ( ( options = arguments[ i ] ) != null ) {
 
 			// Extend the base object
@@ -310,7 +310,7 @@ jQuery.extend = jQuery.fn.extend = function() {
 					// Never move original objects, clone them
 					target[ name ] = jQuery.extend( deep, clone, copy );
 
-				// Don't bring in undefined values
+				// Don't bring in undefined fields
 				} else if ( copy !== undefined ) {
 					target[ name ] = copy;
 				}
@@ -456,7 +456,7 @@ jQuery.extend( {
 			i = 0,
 			ret = [];
 
-		// Go through the array, translating each of the items to their new values
+		// Go through the array, translating each of the items to their new fields
 		if ( isArrayLike( elems ) ) {
 			length = elems.length;
 			for ( ; i < length; i++ ) {
@@ -605,7 +605,7 @@ var i,
 		// Operator (capture 2)
 		"*([*^$|!~]?=)" + whitespace +
 
-		// "Attribute values must be CSS identifiers [capture 5]
+		// "Attribute fields must be CSS identifiers [capture 5]
 		// or strings [capture 3 or capture 4]"
 		"*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|(" + identifier + "))|)" +
 		whitespace + "*\\]",
@@ -678,7 +678,7 @@ var i,
 
 			// Replace a hexadecimal escape sequence with the encoded Unicode code point
 			// Support: IE <=11+
-			// For values outside the Basic Multilingual Plane (BMP), manually construct a
+			// For fields outside the Basic Multilingual Plane (BMP), manually construct a
 			// surrogate pair
 			high < 0 ?
 				String.fromCharCode( high + 0x10000 ) :
@@ -2239,7 +2239,7 @@ Expr = Sizzle.selectors = {
 				elem.type === "text" &&
 
 				// Support: IE<8
-				// New HTML5 attribute values (e.g., "search") appear with elem.type === "text"
+				// New HTML5 attribute fields (e.g., "search") appear with elem.type === "text"
 				( ( attr = elem.getAttribute( "type" ) ) == null ||
 					attr.toLowerCase() === "text" );
 		},
@@ -2760,7 +2760,7 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 						}
 					}
 
-					// Discard index placeholder values to get only actual matches
+					// Discard index placeholder fields to get only actual matches
 					setMatched = condense( setMatched );
 				}
 
@@ -3441,9 +3441,9 @@ function createOptions( options ) {
  *
  *	once:			will ensure the callback list can only be fired once (like a Deferred)
  *
- *	memory:			will keep track of previous values and will call any callback added
+ *	memory:			will keep track of previous fields and will call any callback added
  *					after the list has been fired right away with the latest "memorized"
- *					values (like a Deferred)
+ *					fields (like a Deferred)
  *
  *	unique:			will ensure a callback can only be added once (no duplicate in the list)
  *
@@ -3592,7 +3592,7 @@ jQuery.Callbacks = function( options ) {
 
 			// Disable .fire and .add
 			// Abort any current/pending executions
-			// Clear all callbacks and values
+			// Clear all callbacks and fields
 			disable: function() {
 				locked = queue = [];
 				list = memory = "";
@@ -3794,7 +3794,7 @@ jQuery.extend( {
 										// Normal processors (resolve) also hook into progress
 										} else {
 
-											// ...and disregard older resolution values
+											// ...and disregard older resolution fields
 											maxDepth++;
 
 											then.call(
@@ -3806,11 +3806,11 @@ jQuery.extend( {
 											);
 										}
 
-									// Handle all other returned values
+									// Handle all other returned fields
 									} else {
 
 										// Only substitute handlers pass on context
-										// and multiple values (non-spec behavior)
+										// and multiple fields (non-spec behavior)
 										if ( handler !== Identity ) {
 											that = undefined;
 											args = [ returned ];
@@ -3841,7 +3841,7 @@ jQuery.extend( {
 											if ( depth + 1 >= maxDepth ) {
 
 												// Only substitute handlers pass on context
-												// and multiple values (non-spec behavior)
+												// and multiple fields (non-spec behavior)
 												if ( handler !== Thrower ) {
 													that = undefined;
 													args = [ e ];
@@ -3995,7 +3995,7 @@ jQuery.extend( {
 
 			// subordinate fulfillment data
 			resolveContexts = Array( i ),
-			resolveValues = slice.call( arguments ),
+			resolvefields = slice.call( arguments ),
 
 			// the master Deferred
 			master = jQuery.Deferred(),
@@ -4004,9 +4004,9 @@ jQuery.extend( {
 			updateFunc = function( i ) {
 				return function( value ) {
 					resolveContexts[ i ] = this;
-					resolveValues[ i ] = arguments.length > 1 ? slice.call( arguments ) : value;
+					resolvefields[ i ] = arguments.length > 1 ? slice.call( arguments ) : value;
 					if ( !( --remaining ) ) {
-						master.resolveWith( resolveContexts, resolveValues );
+						master.resolveWith( resolveContexts, resolvefields );
 					}
 				};
 			};
@@ -4018,7 +4018,7 @@ jQuery.extend( {
 
 			// Use .then() to unwrap secondary thenables (cf. gh-3000)
 			if ( master.state() === "pending" ||
-				isFunction( resolveValues[ i ] && resolveValues[ i ].then ) ) {
+				isFunction( resolvefields[ i ] && resolvefields[ i ].then ) ) {
 
 				return master.then();
 			}
@@ -4026,7 +4026,7 @@ jQuery.extend( {
 
 		// Multiple arguments are aggregated like Promise.all array elements
 		while ( i-- ) {
-			adoptValue( resolveValues[ i ], updateFunc( i ), master.reject );
+			adoptValue( resolvefields[ i ], updateFunc( i ), master.reject );
 		}
 
 		return master.promise();
@@ -4138,14 +4138,14 @@ if ( document.readyState === "complete" ||
 
 
 
-// Multifunctional method to get and set values of a collection
+// Multifunctional method to get and set fields of a collection
 // The value/s can optionally be executed if it's a function
 var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 	var i = 0,
 		len = elems.length,
 		bulk = key == null;
 
-	// Sets many values
+	// Sets many fields
 	if ( toType( key ) === "object" ) {
 		chainable = true;
 		for ( i in key ) {
@@ -4167,7 +4167,7 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 				fn.call( elems, value );
 				fn = null;
 
-			// ...except when executing function values
+			// ...except when executing function fields
 			} else {
 				bulk = fn;
 				fn = function( elem, _key, value ) {
@@ -4476,7 +4476,7 @@ jQuery.fn.extend( {
 			elem = this[ 0 ],
 			attrs = elem && elem.attributes;
 
-		// Gets all values
+		// Gets all fields
 		if ( key === undefined ) {
 			if ( this.length ) {
 				data = dataUser.get( elem );
@@ -4502,7 +4502,7 @@ jQuery.fn.extend( {
 			return data;
 		}
 
-		// Sets multiple values
+		// Sets multiple fields
 		if ( typeof key === "object" ) {
 			return this.each( function() {
 				dataUser.set( this, key );
@@ -4828,7 +4828,7 @@ function getDefaultDisplay( elem ) {
 
 function showHide( elements, show ) {
 	var display, elem,
-		values = [],
+		fields = [],
 		index = 0,
 		length = elements.length;
 
@@ -4846,17 +4846,17 @@ function showHide( elements, show ) {
 			// check is required in this first loop unless we have a nonempty display value (either
 			// inline or about-to-be-restored)
 			if ( display === "none" ) {
-				values[ index ] = dataPriv.get( elem, "display" ) || null;
-				if ( !values[ index ] ) {
+				fields[ index ] = dataPriv.get( elem, "display" ) || null;
+				if ( !fields[ index ] ) {
 					elem.style.display = "";
 				}
 			}
 			if ( elem.style.display === "" && isHiddenWithinTree( elem ) ) {
-				values[ index ] = getDefaultDisplay( elem );
+				fields[ index ] = getDefaultDisplay( elem );
 			}
 		} else {
 			if ( display !== "none" ) {
-				values[ index ] = "none";
+				fields[ index ] = "none";
 
 				// Remember what we're overwriting
 				dataPriv.set( elem, "display", display );
@@ -4866,8 +4866,8 @@ function showHide( elements, show ) {
 
 	// Set the display of the elements in a second loop to avoid constant reflow
 	for ( index = 0; index < length; index++ ) {
-		if ( values[ index ] != null ) {
-			elements[ index ].style.display = values[ index ];
+		if ( fields[ index ] != null ) {
+			elements[ index ].style.display = fields[ index ];
 		}
 	}
 
@@ -6425,7 +6425,7 @@ var swap = function( elem, options, callback ) {
 	var ret, name,
 		old = {};
 
-	// Remember the old values, and insert the new ones
+	// Remember the old fields, and insert the new ones
 	for ( name in options ) {
 		old[ name ] = elem.style[ name ];
 		elem.style[ name ] = options[ name ];
@@ -6433,7 +6433,7 @@ var swap = function( elem, options, callback ) {
 
 	ret = callback.call( elem );
 
-	// Revert the old values
+	// Revert the old fields
 	for ( name in options ) {
 		elem.style[ name ] = old[ name ];
 	}
@@ -6472,7 +6472,7 @@ var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 		reliableMarginLeftVal = roundPixelMeasures( divStyle.marginLeft ) === 12;
 
 		// Support: Android 4.0 - 4.3 only, Safari <=9.1 - 10.1, iOS <=7.0 - 9.3
-		// Some styles come back with percentage values, even though they shouldn't
+		// Some styles come back with percentage fields, even though they shouldn't
 		div.style.right = "60%";
 		pixelBoxStylesVal = roundPixelMeasures( divStyle.right ) === 36;
 
@@ -6538,7 +6538,7 @@ var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 
 		// Support: IE 9 - 11+, Edge 15 - 18+
 		// IE/Edge misreport `getComputedStyle` of table rows with width/height
-		// set in CSS while `offset*` properties report correct values.
+		// set in CSS while `offset*` properties report correct fields.
 		// Behavior in IE 9 is more subtle than in newer versions & it passes
 		// some versions of this test; make sure not to make it pass there!
 		reliableTrDimensions: function() {
@@ -6573,7 +6573,7 @@ function curCSS( elem, name, computed ) {
 
 		// Support: Firefox 51+
 		// Retrieving style before computed somehow
-		// fixes an issue with getting wrong values
+		// fixes an issue with getting wrong fields
 		// on detached elements
 		style = elem.style;
 
@@ -6590,22 +6590,22 @@ function curCSS( elem, name, computed ) {
 		}
 
 		// A tribute to the "awesome hack by Dean Edwards"
-		// Android Browser returns percentage for some values,
+		// Android Browser returns percentage for some fields,
 		// but width seems to be reliably pixels.
 		// This is against the CSSOM draft spec:
-		// https://drafts.csswg.org/cssom/#resolved-values
+		// https://drafts.csswg.org/cssom/#resolved-fields
 		if ( !support.pixelBoxStyles() && rnumnonpx.test( ret ) && rboxStyle.test( name ) ) {
 
-			// Remember the original values
+			// Remember the original fields
 			width = style.width;
 			minWidth = style.minWidth;
 			maxWidth = style.maxWidth;
 
-			// Put in the new values to get a computed value out
+			// Put in the new fields to get a computed value out
 			style.minWidth = style.maxWidth = style.width = ret;
 			ret = computed.width;
 
-			// Revert the changed values
+			// Revert the changed fields
 			style.width = width;
 			style.minWidth = minWidth;
 			style.maxWidth = maxWidth;
@@ -6678,7 +6678,7 @@ var
 
 	// Swappable if display is none or starts with table
 	// except "table", "table-cell", or "table-caption"
-	// See here for display values: https://developer.mozilla.org/en-US/docs/CSS/display
+	// See here for display fields: https://developer.mozilla.org/en-US/docs/CSS/display
 	rdisplayswap = /^(none|table(?!-c[ea]).+)/,
 	rcustomProp = /^--/,
 	cssShow = { position: "absolute", visibility: "hidden", display: "block" },
@@ -6689,7 +6689,7 @@ var
 
 function setPositiveNumber( _elem, value, subtract ) {
 
-	// Any relative (+/-) values have already been
+	// Any relative (+/-) fields have already been
 	// normalized at this point
 	var matches = rcssNum.exec( value );
 	return matches ?
@@ -6799,7 +6799,7 @@ function getWidthOrHeight( elem, dimension, extra ) {
 
 		// Support: IE 10 - 11+, Edge 15 - 18+
 		// IE/Edge misreport `getComputedStyle` of table rows with width/height
-		// set in CSS while `offset*` properties report correct values.
+		// set in CSS while `offset*` properties report correct fields.
 		// Interestingly, in some cases IE 9 doesn't suffer from this issue.
 		!support.reliableTrDimensions() && nodeName( elem, "tr" ) ||
 
@@ -6924,19 +6924,19 @@ jQuery.extend( {
 				type = "number";
 			}
 
-			// Make sure that null and NaN values aren't set (#7116)
+			// Make sure that null and NaN fields aren't set (#7116)
 			if ( value == null || value !== value ) {
 				return;
 			}
 
 			// If a number was passed in, add the unit (except for certain CSS properties)
 			// The isCustomProp check can be removed in jQuery 4.0 when we only auto-append
-			// "px" to a few hardcoded values.
+			// "px" to a few hardcoded fields.
 			if ( type === "number" && !isCustomProp ) {
 				value += ret && ret[ 3 ] || ( jQuery.cssNumber[ origName ] ? "" : "px" );
 			}
 
-			// background-* props affect original clone's values
+			// background-* props affect original clone's fields
 			if ( !support.clearCloneStyle && value === "" && name.indexOf( "background" ) === 0 ) {
 				style[ name ] = "inherit";
 			}
@@ -7208,8 +7208,8 @@ Tween.propHooks = {
 
 			// Passing an empty string as a 3rd parameter to .css will automatically
 			// attempt a parseFloat and fallback to a string if the parse fails.
-			// Simple values such as "10px" are parsed to Float;
-			// complex values such as "rotate(1rad)" are returned as-is.
+			// Simple fields such as "10px" are parsed to Float;
+			// complex fields such as "rotate(1rad)" are returned as-is.
 			result = jQuery.css( tween.elem, tween.prop, "" );
 
 			// Empty strings, null, undefined and "auto" are converted to 0.
@@ -7292,7 +7292,7 @@ function genFx( type, includeWidth ) {
 		i = 0,
 		attrs = { height: type };
 
-	// If we include width, step value is 1 to do all cssExpand values,
+	// If we include width, step value is 1 to do all cssExpand fields,
 	// otherwise step value is 2 to skip over Left and Right
 	includeWidth = includeWidth ? 1 : 0;
 	for ( ; i < 4; i += 2 - includeWidth ) {
@@ -8162,7 +8162,7 @@ jQuery.extend( {
 				// Support: IE <=9 - 11 only
 				// elem.tabIndex doesn't always return the
 				// correct value when it hasn't been explicitly set
-				// https://web.archive.org/web/20141116233347/http://fluidproject.org/blog/2008/01/09/getting-setting-and-removing-tabindex-values-with-javascript/
+				// https://web.archive.org/web/20141116233347/http://fluidproject.org/blog/2008/01/09/getting-setting-and-removing-tabindex-fields-with-javascript/
 				// Use proper attribute retrieval(#12072)
 				var tabindex = jQuery.find.attr( elem, "tabindex" );
 
@@ -8521,7 +8521,7 @@ jQuery.extend( {
 					options = elem.options,
 					index = elem.selectedIndex,
 					one = elem.type === "select-one",
-					values = one ? null : [],
+					fields = one ? null : [],
 					max = one ? index + 1 : options.length;
 
 				if ( index < 0 ) {
@@ -8553,17 +8553,17 @@ jQuery.extend( {
 						}
 
 						// Multi-Selects return an array
-						values.push( value );
+						fields.push( value );
 					}
 				}
 
-				return values;
+				return fields;
 			},
 
 			set: function( elem, value ) {
 				var optionSet, option,
 					options = elem.options,
-					values = jQuery.makeArray( value ),
+					fields = jQuery.makeArray( value ),
 					i = options.length;
 
 				while ( i-- ) {
@@ -8572,7 +8572,7 @@ jQuery.extend( {
 					/* eslint-disable no-cond-assign */
 
 					if ( option.selected =
-						jQuery.inArray( jQuery.valHooks.option.get( option ), values ) > -1
+						jQuery.inArray( jQuery.valHooks.option.get( option ), fields ) > -1
 					) {
 						optionSet = true;
 					}
@@ -8584,7 +8584,7 @@ jQuery.extend( {
 				if ( !optionSet ) {
 					elem.selectedIndex = -1;
 				}
-				return values;
+				return fields;
 			}
 		}
 	}
@@ -8921,7 +8921,7 @@ function buildParams( prefix, obj, traditional, add ) {
 }
 
 // Serialize an array of form elements or a set of
-// key/values into a query string
+// key/fields into a query string
 jQuery.param = function( a, traditional ) {
 	var prefix,
 		s = [],

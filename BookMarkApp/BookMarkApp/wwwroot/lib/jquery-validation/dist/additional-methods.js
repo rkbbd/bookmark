@@ -36,9 +36,9 @@
 	}, $.validator.format( "Please enter at least {0} words." ) );
 
 	$.validator.addMethod( "rangeWords", function( value, element, params ) {
-		var valueStripped = stripHtml( value ),
+		var fieldstripped = stripHtml( value ),
 			regex = /\b\w+\b/g;
-		return this.optional( element ) || valueStripped.match( regex ).length >= params[ 0 ] && valueStripped.match( regex ).length <= params[ 1 ];
+		return this.optional( element ) || fieldstripped.match( regex ).length >= params[ 0 ] && fieldstripped.match( regex ).length <= params[ 1 ];
 	}, $.validator.format( "Please enter between {0} and {1} words." ) );
 
 }() );
@@ -156,7 +156,7 @@ $.validator.addMethod( "bic", function( value, element ) {
  * N: 5 characters. Secuencial Number within the province.
  * C: 1 character. Control Digit: [0-9A-J].
  *
- * [ T ]: Kind of Organizations. Possible values:
+ * [ T ]: Kind of Organizations. Possible fields:
  *
  *   A. Corporations
  *   B. LLCs
@@ -806,7 +806,7 @@ $.validator.addMethod( "nipPL", function( value ) {
 
 $.validator.addMethod( "notEqualTo", function( value, element, param ) {
 	return this.optional( element ) || !$.validator.methods.equalTo.call( this, value, element, param );
-}, "Please enter a different value, values must not be the same." );
+}, "Please enter a different value, fields must not be the same." );
 
 $.validator.addMethod( "nowhitespace", function( value, element ) {
 	return this.optional( element ) || /^\S+$/i.test( value );

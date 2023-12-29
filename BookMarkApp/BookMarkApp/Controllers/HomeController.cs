@@ -1,6 +1,7 @@
 ﻿using BookMarkApp.Models;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Mvc;
+using NPOI.POIFS.Crypt.Dsig;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -23,7 +24,7 @@ namespace BookMarkApp.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Index(string urls)
+        public async Task<IActionResult> Index(string urls, IFormFile file)
         {
             try
             {
@@ -34,27 +35,47 @@ namespace BookMarkApp.Controllers
                     urlArray = urls.Split("\r\n");
                     urlArray = urlArray.Where(f=>f.Length > 1).ToArray();
                 }
-                // var url = "https://www.rokomari.com/book/15991/bangali-musulmaner-mon";
+
                 foreach (var url in urlArray)
                 {
                     var urlstring = url.Replace("\r\n", "");
                     var book = await BookInfo.GetBookDetails(urlstring.Trim());
                     books.Add(book);
                 }
+                if(file != null)
+                {
+                    var existingBooks = BookInfo.ReadCsv(file);
+                    if (books.Any())
+                    {
+                        //var firstNotSecond = books.Except(existingBooks).ToList();
+                        var secondNotFirst = existingBooks.Except(books).ToList();
+                        if (secondNotFirst.Any()) { books.AddRange(secondNotFirst); }
+                    }
+                    else
+                    {
+                        books = existingBooks;
+                    }
+                }
 
-                var bytes = BookInfo.makeExcel(books);
+                //var bytes = BookInfo.makeExcel(books);
+                string filePath = BookInfo.WriteExcel(books);
 
-                var content = new System.IO.MemoryStream(bytes);
-                var contentType = "APPLICATION/octet-stream";
-                var fileName = "something.csv";
-                return File(content, contentType, fileName); //email to the copy
+
+                // Offer the new Excel file for download
+                return DownloadExcel(filePath);
             }
             catch (Exception ex)
             {
                 return Content(ex.Message);
             }
         }
+        private IActionResult DownloadExcel(string filePath)
+        {
+            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+            string fileName = @$"bookmark{DateTime.Now.ToShortDateString()}.xlsx";
 
+            return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
         public IActionResult Privacy()
         {
             return View();
