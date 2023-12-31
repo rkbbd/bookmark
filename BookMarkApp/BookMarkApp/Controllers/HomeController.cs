@@ -40,12 +40,15 @@ namespace BookMarkApp.Controllers
                 {
                     var urlstring = url.Replace("\r\n", "");
                     var book = await BookInfo.GetBookDetails(urlstring.Trim());
-                    books.Add(book);
+                    if(book != null)
+                    {
+                        books.Add(book);
+                    }
                 }
                 if(file != null)
                 {
-                    var existingBooks = BookInfo.ReadCsv(file);
-                    if (books.Any())
+                    var existingBooks = BookInfo.ReadExcel(file);
+                    if (books.Any() && existingBooks.Any())
                     {
                         //var firstNotSecond = books.Except(existingBooks).ToList();
                         var secondNotFirst = existingBooks.Except(books).ToList();
