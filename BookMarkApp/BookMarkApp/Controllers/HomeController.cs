@@ -50,7 +50,6 @@ namespace BookMarkApp.Controllers
                     var existingBooks = BookInfo.ReadExcel(file);
                     if (books.Any() && existingBooks.Any())
                     {
-                        //var firstNotSecond = books.Except(existingBooks).ToList();
                         var secondNotFirst = existingBooks.Except(books).ToList();
                         if (secondNotFirst.Any()) { books.AddRange(secondNotFirst); }
                     }
@@ -60,7 +59,6 @@ namespace BookMarkApp.Controllers
                     }
                 }
 
-                //var bytes = BookInfo.makeExcel(books);
                 string filePath = BookInfo.WriteExcel(books);
 
 
@@ -75,7 +73,7 @@ namespace BookMarkApp.Controllers
         private IActionResult DownloadExcel(string filePath)
         {
             byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
-            string fileName = @$"bookmark{DateTime.Now.ToShortDateString()}.xlsx";
+            string fileName = @$"bookmark{DateTime.Now.ToString("yyyy_MM_dd_HHmmss")}.xlsx";
 
             return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }

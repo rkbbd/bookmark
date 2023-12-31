@@ -1,6 +1,4 @@
 ﻿using HtmlAgilityPack;
-using Microsoft.VisualBasic.FileIO;
-using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
@@ -13,6 +11,8 @@ namespace BookMarkApp.Models
 {
     internal static class BookInfo
     {
+        
+        private static List<string> statusDropdown = new List<string> { "Unread", "Read", "Continue" };
         public static async Task<Book> GetBookDetails(string url)
         {
             var rokomari = url.Contains("rokomari");
@@ -100,8 +100,6 @@ namespace BookMarkApp.Models
                 case CellType.Numeric:
                     return cell.NumericCellValue.ToString();
 
-                // Handle other cell types as needed
-
                 default:
                     return null;
             }
@@ -153,95 +151,60 @@ namespace BookMarkApp.Models
                 return books;
             }
         }
-        //public static List<Book> ReadCsv(IFormFile csvFile)
-        //{
-        //    try
-        //    {
+        private static ICellStyle HeaderStyle(IWorkbook workbook)
+        {
+            // Create a cell style for the header row
+            ICellStyle headerStyle = workbook.CreateCellStyle();
+            IFont headerFont = workbook.CreateFont();
+            headerFont.Boldweight = (short)FontBoldWeight.Bold;
+            headerStyle.SetFont(headerFont);
+            headerStyle.Alignment = HorizontalAlignment.Center;
+            headerStyle.VerticalAlignment = VerticalAlignment.Center;
+            headerStyle.FillForegroundColor = IndexedColors.RoyalBlue.Index;//IndexedColors.Grey25Percent.Index;
+            headerStyle.FillPattern = FillPattern.SolidForeground;
+            return headerStyle;
+        }
 
-        //        List<Book> data = new List<Book>();
-
-        //        using (var reader = new System.IO.StreamReader(csvFile.OpenReadStream()))
-        //        {
-        //            using (TextFieldParser parser = new TextFieldParser(reader))
-        //            {
-        //                parser.TextFieldType = FieldType.Delimited;
-        //                parser.SetDelimiters(",");
-
-        //                while (!parser.EndOfData)
-        //                {
-        //                    string[] fields = parser.ReadFields();
-        //                    if (fields != null)
-        //                    {
-        //                        var rowData = new Book
-        //                        {
-        //                            BookImg = fields.Length > 0 ? fields[0] : null,
-        //                            Title = fields.Length > 0 ? fields[0] : null,
-        //                            Summary = fields.Length > 0 ? fields[0] : null,
-        //                            Author = fields.Length > 0 ? fields[0] : null,
-        //                            AuthorDescription = fields.Length > 0 ? fields[0] : null,
-        //                            Translator = fields.Length > 0 ? fields[0] : null,
-        //                            Price = fields.Length > 0 ? (double) (fields[0] ?? 0) : null,
-        //                            SellPrice = fields.Length > 0 ? fields[0] : null,
-        //                            Discount = fields.Length > 0 ? fields[0] : null,
-        //                            NumberofPages = fields.Length > 0 ? fields[0] : null,
-        //                            Publisher = fields.Length > 0 ? fields[0] : null,
-        //                            Category = fields.Length > 0 ? fields[0] : null,
-        //                            ISBN = fields.Length > 0 ? fields[0] : null,
-        //                            Edition = fields.Length > 0 ? fields[0] : null,
-        //                            Country = fields.Length > 0 ? fields[0] : null,
-        //                            Language = fields.Length > 0 ? fields[0] : null,
-        //                            CategoryLink = fields.Length > 0 ? fields[0] : null,
-        //                            Tag = fields.Length > 0 ? fields[0] : null,
-        //                            Link = fields.Length > 0 ? fields[0] : null,
-        //                        };
-
-        //                        data.Add(rowData);
-        //                    }
-        //                }
-        //            }
-        //        }
-
-        //        return data;
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return null;
-        //    }
-        //}
+        static void CreateCell(IRow row, int column, string value, ICellStyle style)
+        {
+            ICell cell = row.CreateCell(column);
+            cell.SetCellValue(value);
+            cell.CellStyle = style;
+        }
         public static string WriteExcel(List<Book> data)
         {
             IWorkbook workbook = new XSSFWorkbook();
-            ISheet sheet = workbook.CreateSheet("Details");
+            var firstSheet = "Details";
+            ISheet sheet = workbook.CreateSheet(firstSheet);
 
-            // Add header row
+            #region Add header row
+            ICellStyle headerStyle = HeaderStyle(workbook);
             IRow headerRow = sheet.CreateRow(0);
-            headerRow.CreateCell(0).SetCellValue("Image");
-            headerRow.CreateCell(1).SetCellValue("Title");
-            headerRow.CreateCell(2).SetCellValue("Summary");
-            headerRow.CreateCell(3).SetCellValue("Author");
-            headerRow.CreateCell(4).SetCellValue("Author Description");
-            headerRow.CreateCell(5).SetCellValue("Translator");
-            headerRow.CreateCell(6).SetCellValue("Price");
-            headerRow.CreateCell(7).SetCellValue("Sell Price");
-            headerRow.CreateCell(8).SetCellValue("Discount");
-            headerRow.CreateCell(9).SetCellValue("Discount Rate");
-            headerRow.CreateCell(10).SetCellValue("Number of Pages");
-            headerRow.CreateCell(11).SetCellValue("Publisher");
-            headerRow.CreateCell(12).SetCellValue("Category");
-            headerRow.CreateCell(13).SetCellValue("ISBN");
-            headerRow.CreateCell(14).SetCellValue("Edition");
-            headerRow.CreateCell(15).SetCellValue("Country");
-            headerRow.CreateCell(16).SetCellValue("Language");
-            headerRow.CreateCell(17).SetCellValue("Category Link");
-            headerRow.CreateCell(18).SetCellValue("Status");
-            headerRow.CreateCell(19).SetCellValue("Rating");
-            headerRow.CreateCell(20).SetCellValue("Tag");
-            headerRow.CreateCell(21).SetCellValue("Link");
-
-            // Add other header cells as needed
-            List<string> statusDropdown = new List<string> { "--X--", "Unread", "Read", "Continue" };
+            CreateCell(headerRow, 0, "Image", headerStyle);
+            CreateCell(headerRow, 1, "Title", headerStyle);
+            CreateCell(headerRow, 2, "Summary", headerStyle);
+            CreateCell(headerRow, 3, "Author", headerStyle);
+            CreateCell(headerRow, 4, "Author Description", headerStyle);
+            CreateCell(headerRow, 5, "Translator", headerStyle);
+            CreateCell(headerRow, 6, "Price", headerStyle);
+            CreateCell(headerRow, 7, "Sell Price", headerStyle);
+            CreateCell(headerRow, 8, "Discount", headerStyle);
+            CreateCell(headerRow, 9, "Discount Rate", headerStyle);
+            CreateCell(headerRow, 10, "Number of Pages", headerStyle);
+            CreateCell(headerRow, 11, "Publisher", headerStyle);
+            CreateCell(headerRow, 12, "Category", headerStyle);
+            CreateCell(headerRow, 13, "ISBN", headerStyle);
+            CreateCell(headerRow, 14, "Edition", headerStyle);
+            CreateCell(headerRow, 15, "Country", headerStyle);
+            CreateCell(headerRow, 16, "Language", headerStyle);
+            CreateCell(headerRow, 17, "Category Link", headerStyle);
+            CreateCell(headerRow, 18, "Status", headerStyle);
+            CreateCell(headerRow, 19, "Rating", headerStyle);
+            CreateCell(headerRow, 20, "Tag", headerStyle);
+            CreateCell(headerRow, 21, "Link", headerStyle);
+            #endregion
+            sheet.SetAutoFilter(new CellRangeAddress(0, 0, 0, headerRow.LastCellNum - 1));
+            sheet.SetColumnWidth(1, 7000);
             // Add data rows
             for (int i = 0; i < data.Count; i++)
             {
@@ -264,7 +227,7 @@ namespace BookMarkApp.Models
                 dataRow.CreateCell(15).SetCellValue(data[i].Country);
                 dataRow.CreateCell(16).SetCellValue(data[i].Language);
                 dataRow.CreateCell(17).SetCellValue(data[i].CategoryLink);
-                dataRow.CreateCell(18).SetCellValue(statusDropdown[1]);
+                dataRow.CreateCell(18).SetCellValue(statusDropdown[0]);
                 dataRow.CreateCell(19).SetCellValue(3);
                 dataRow.CreateCell(20).SetCellValue(data[i].Tag);
                 dataRow.CreateCell(21).SetCellValue(data[i].Link);
@@ -275,17 +238,23 @@ namespace BookMarkApp.Models
             ICellStyle cellStyle = workbook.CreateCellStyle();
             cellStyle.Alignment = HorizontalAlignment.Center; // Adjust alignment as needed
 
-            //Total 
+            #region Total count at the end
             IRow footerRow = sheet.CreateRow(data.Count + 1);
-            footerRow.CreateCell(6).SetCellFormula($"SUM(G2:G{data.Count + 1})");
-            footerRow.CreateCell(7).SetCellFormula($"SUM(H2:H{data.Count + 1})");
-            footerRow.CreateCell(8).SetCellFormula($"SUM(I2:I{data.Count + 1})");
-            footerRow.CreateCell(9).SetCellFormula($"SUM(J2:J{data.Count + 1})");
             var cell1 = footerRow.CreateCell(0);
             cell1.SetCellValue("Total");
             cell1.CellStyle = cellStyle;
             CellRangeAddress mergedRegion = new CellRangeAddress(data.Count + 1, data.Count + 1, 0, 5);
+            sheet.AddMergedRegion(mergedRegion);
 
+
+            footerRow.CreateCell(6).SetCellFormula($"SUM(G2:G{data.Count + 1})");
+            footerRow.CreateCell(7).SetCellFormula($"SUM(H2:H{data.Count + 1})");
+            footerRow.CreateCell(8).SetCellFormula($"SUM(I2:I{data.Count + 1})");
+            footerRow.CreateCell(9).SetCellFormula($"SUM(J2:J{data.Count + 1})");
+            footerRow.CreateCell(10).SetCellFormula($"SUM(K2:K{data.Count + 1})");
+            #endregion
+
+            #region status dropdown
             // Apply data validation to the cell (A2 in this case)
             CellRangeAddressList statusRang = new CellRangeAddressList(1, 1000, 18, 18);
             XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper((XSSFSheet)sheet);
@@ -295,80 +264,35 @@ namespace BookMarkApp.Models
             // Set other data validation options if needed
             validation.ShowErrorBox = true;
             validation.CreateErrorBox("Invalid Value", "Please select a value from the dropdown list.");
-
             sheet.AddValidationData(validation);
+            #endregion
 
+            #region add new sheet
+            var summarySheet = "Summary";
+            ISheet summary = workbook.CreateSheet(summarySheet);
+            IRow status1 = summary.CreateRow(5);
+            status1.CreateCell(3).SetCellValue(@$"{statusDropdown[0]}");
+            status1.CreateCell(4).SetCellFormula($"CountIf({firstSheet}!S1:{firstSheet}!S{data.Count + 1},\"{statusDropdown[0]}\")");
 
-            ISheet summary = workbook.CreateSheet("Summary");
+            IRow status2 = summary.CreateRow(6);
+            status2.CreateCell(3).SetCellValue(@$"{statusDropdown[1]}");
+            status2.CreateCell(4).SetCellFormula($"CountIf({firstSheet}!S1:{firstSheet}!S{data.Count + 1},\"{statusDropdown[1]}\")");
 
-            ////Total 
-            //IRow summaryRow = summary.CreateRow(0);
-            //summaryRow.CreateCell(4).SetCellFormula($"CountIf(Sheet1!K1:Sheet1!K{data.Count + 1},\"unread\")");
-            ////footerRow.CreateCell(7).SetCellFormula($"SUM(H2:H{data.Count + 1})");
-            ////footerRow.CreateCell(8).SetCellFormula($"SUM(I2:I{data.Count + 1})");
-            ////footerRow.CreateCell(9).SetCellFormula($"SUM(J2:J{data.Count + 1})");
-            //var summaryCell = summaryRow.CreateCell(3);
-            //summaryCell.SetCellValue("Unread");
-            //summaryCell.CellStyle = cellStyle;
-            //// Create a cell style and set the text alignment
+            IRow status3 = summary.CreateRow(7);
+            status3.CreateCell(3).SetCellValue(@$"{statusDropdown[2]}");
+            status3.CreateCell(4).SetCellFormula($"CountIf({firstSheet}!S1:{firstSheet}!S{data.Count + 1},\"{statusDropdown[2]}\")");
+            #endregion
 
-
-            // Apply the cell style to the cell
-            sheet.AddMergedRegion(mergedRegion);
             XSSFFormulaEvaluator.EvaluateAllFormulaCells(workbook);
-
-
             // Save the new workbook to a file
-            string filePath = @$"bookmark_{DateTime.Now.ToString("yyyy_MM_dd_HHmmss")}.xlsx";
+            string filePath = @$"bookmark.xlsx";
             using (var fileStream = System.IO.File.OpenWrite(filePath))
             {
                 workbook.Write(fileStream);
             }
             return filePath;
         }
-        public static byte[] MakeExcel(List<Book> books) //CSV
-        {
-            MemoryStream ms = new MemoryStream();
-            using (StreamWriter sw = new StreamWriter(ms, Encoding.UTF8))
-            {
-                var stringCSV = ConvertToCsv(books);
-                sw.WriteLine(stringCSV);
-                sw.Flush();
-            }
-            byte[] bytes = ms.ToArray();
-            ms.Close();
-            return bytes;
-        }
-        static string ConvertToCsv<T>(IEnumerable<T> data)
-        {
-            StringWriter csvString = new StringWriter();
 
-            // Write the header
-            csvString.WriteLine(string.Join(",", typeof(T).GetProperties().Select(prop => QuoteIfNeeded(prop.Name))));
-
-            // Write the data
-            foreach (var item in data)
-            {
-                var fields = typeof(T).GetProperties()
-                    .Select(prop => QuoteIfNeeded(prop.GetValue(item)?.ToString() ?? ""));
-                csvString.WriteLine(string.Join(",", fields));
-            }
-
-            return csvString.ToString();
-        }
-
-        static string QuoteIfNeeded(string value)
-        {
-            if (value.Contains(',') || value.Contains('"'))
-            {
-                // Escape double quotes by doubling them and enclose the value in double quotes
-                return $"\"{value.Replace("\"", "\"\"")}\"";
-            }
-            else
-            {
-                return value;
-            }
-        }
         public static void SetValue<T>(this T sender, string propertyName, object value)
         {
             var propertyInfo = sender.GetType().GetProperty(propertyName);
@@ -387,7 +311,6 @@ namespace BookMarkApp.Models
                 propertyInfo.SetValue(sender, safeValue, null);
             }
         }
-
     }
     public class Book
     {
