@@ -314,44 +314,7 @@ namespace BookMarkApp.Models
             c4.CellStyle = sCellStyle;
             status4.CreateCell(4).SetCellValue(data.Count);
 
-            var translatorCount = ColumnSummary(sheet, 5);
-            var authorCount = ColumnSummary(sheet, 3);
-            var publisherCount = ColumnSummary(sheet, 11);
-            var categoryCount = ColumnSummary(sheet, 12);
-
-            var maxCountList = new List<Dictionary<string, int>> { translatorCount, authorCount, publisherCount, categoryCount }
-           .OrderByDescending(list => list.Count()).First();
-
-            SetSummaryHeader(summary);
-            for (int i = 0; i < maxCountList.Count(); i++)
-            {
-                IRow dataRow = summary.CreateRow(i + 10);
-                if(authorCount.Count() >= i)
-                {
-                    dataRow.CreateCell(0).SetCellValue(authorCount.ElementAt(i).Key);
-                    dataRow.CreateCell(1).SetCellValue(authorCount.ElementAt(i).Value);
-                }
-
-                if(publisherCount.Count() >= i)
-                {
-                    dataRow.CreateCell(3).SetCellValue(publisherCount.ElementAt(i).Key);
-                    dataRow.CreateCell(4).SetCellValue(publisherCount.ElementAt(i).Value);
-                }
-
-              
-                if(translatorCount.Count() >= i)
-                {
-                    dataRow.CreateCell(6).SetCellValue(translatorCount.ElementAt(i).Key);
-                    dataRow.CreateCell(7).SetCellValue(translatorCount.ElementAt(i).Value);
-                }
-
-                if (categoryCount.Count() >= i)
-                {
-                    dataRow.CreateCell(9).SetCellValue(categoryCount.ElementAt(i).Key);
-                    dataRow.CreateCell(10).SetCellValue(categoryCount.ElementAt(i).Value);
-                }
-            }
-
+            SetSummaryHeader(summary, sheet);
             #endregion
 
             XSSFFormulaEvaluator.EvaluateAllFormulaCells(workbook);
@@ -363,7 +326,7 @@ namespace BookMarkApp.Models
             }
             return filePath;
         }
-        private static void SetSummaryHeader(ISheet summary)
+        private static void SetSummaryHeader(ISheet summary, ISheet sheet)
         {
             try
             {
@@ -384,6 +347,44 @@ namespace BookMarkApp.Models
                 summary.SetColumnWidth(3, 6000);
                 summary.SetColumnWidth(6, 6000);
                 summary.SetColumnWidth(9, 6000);
+
+
+                var translatorCount = ColumnSummary(sheet, 5);
+                var authorCount = ColumnSummary(sheet, 3);
+                var publisherCount = ColumnSummary(sheet, 11);
+                var categoryCount = ColumnSummary(sheet, 12);
+
+                var maxCountList = new List<Dictionary<string, int>> { translatorCount, authorCount, publisherCount, categoryCount }
+               .OrderByDescending(list => list.Count()).First();
+
+                for (int i = 0; i < maxCountList.Count(); i++) //outof range check TODO
+                {
+                    IRow dataRow = summary.CreateRow(i + 10);
+                    if (authorCount.Count() >= i)
+                    {
+                        dataRow.CreateCell(0).SetCellValue(authorCount.ElementAt(i).Key);
+                        dataRow.CreateCell(1).SetCellValue(authorCount.ElementAt(i).Value);
+                    }
+
+                    if (publisherCount.Count() >= i)
+                    {
+                        dataRow.CreateCell(3).SetCellValue(publisherCount.ElementAt(i).Key);
+                        dataRow.CreateCell(4).SetCellValue(publisherCount.ElementAt(i).Value);
+                    }
+
+
+                    if (translatorCount.Count() >= i)
+                    {
+                        dataRow.CreateCell(6).SetCellValue(translatorCount.ElementAt(i).Key);
+                        dataRow.CreateCell(7).SetCellValue(translatorCount.ElementAt(i).Value);
+                    }
+
+                    if (categoryCount.Count() >= i)
+                    {
+                        dataRow.CreateCell(9).SetCellValue(categoryCount.ElementAt(i).Key);
+                        dataRow.CreateCell(10).SetCellValue(categoryCount.ElementAt(i).Value);
+                    }
+                }
             }
             catch (Exception ex)
             {
