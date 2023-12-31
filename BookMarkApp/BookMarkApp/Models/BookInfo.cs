@@ -1,4 +1,6 @@
 ﻿using HtmlAgilityPack;
+using NPOI.HSSF.Util;
+using NPOI.POIFS.Crypt.Dsig;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
@@ -11,7 +13,7 @@ namespace BookMarkApp.Models
 {
     internal static class BookInfo
     {
-        
+
         private static List<string> statusDropdown = new List<string> { "Unread", "Read", "Continue" };
         public static async Task<Book> GetBookDetails(string url)
         {
@@ -31,7 +33,7 @@ namespace BookMarkApp.Models
             for (int i = 0; cols != null && i < cols.Count; i = i + 2)
             {
                 string name = string.Join("", cols[i].InnerText.Trim().Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
-                string value = cols[i + 1].InnerText;
+                string value = cols[i + 1].InnerText.Trim();
                 book.SetValue(name, value);
             }
             var price = doc.DocumentNode.SelectNodes("//div[@class='details-book-info__content-book-price']//strike[@class='original-price']")?[0].InnerText.Trim();
@@ -156,11 +158,15 @@ namespace BookMarkApp.Models
             // Create a cell style for the header row
             ICellStyle headerStyle = workbook.CreateCellStyle();
             IFont headerFont = workbook.CreateFont();
+            headerFont.Color = HSSFColor.White.Index;
             headerFont.Boldweight = (short)FontBoldWeight.Bold;
             headerStyle.SetFont(headerFont);
+
+
+
             headerStyle.Alignment = HorizontalAlignment.Center;
             headerStyle.VerticalAlignment = VerticalAlignment.Center;
-            headerStyle.FillForegroundColor = IndexedColors.RoyalBlue.Index;//IndexedColors.Grey25Percent.Index;
+            headerStyle.FillForegroundColor = IndexedColors.LightBlue.Index;//IndexedColors.Grey25Percent.Index;
             headerStyle.FillPattern = FillPattern.SolidForeground;
             return headerStyle;
         }
@@ -205,6 +211,9 @@ namespace BookMarkApp.Models
             #endregion
             sheet.SetAutoFilter(new CellRangeAddress(0, 0, 0, headerRow.LastCellNum - 1));
             sheet.SetColumnWidth(1, 7000);
+            sheet.SetColumnWidth(3, 7000);
+            sheet.SetColumnWidth(5, 5000);
+            sheet.SetColumnWidth(11, 6000);
             // Add data rows
             for (int i = 0; i < data.Count; i++)
             {
@@ -246,7 +255,6 @@ namespace BookMarkApp.Models
             CellRangeAddress mergedRegion = new CellRangeAddress(data.Count + 1, data.Count + 1, 0, 5);
             sheet.AddMergedRegion(mergedRegion);
 
-
             footerRow.CreateCell(6).SetCellFormula($"SUM(G2:G{data.Count + 1})");
             footerRow.CreateCell(7).SetCellFormula($"SUM(H2:H{data.Count + 1})");
             footerRow.CreateCell(8).SetCellFormula($"SUM(I2:I{data.Count + 1})");
@@ -268,19 +276,82 @@ namespace BookMarkApp.Models
             #endregion
 
             #region add new sheet
+            ICellStyle sCellStyle = workbook.CreateCellStyle();
+            sCellStyle.Alignment = HorizontalAlignment.Left;
+            sCellStyle.FillBackgroundColor = IndexedColors.White.Index;
+
+            sCellStyle.FillForegroundColor = IndexedColors.LightBlue.Index;//IndexedColors.Grey25Percent.Index;
+            sCellStyle.FillPattern = FillPattern.SolidForeground;
+            IFont cellFont = workbook.CreateFont();
+            cellFont.Color = HSSFColor.White.Index;
+            cellFont.Boldweight = (short)FontBoldWeight.Bold;
+            sCellStyle.SetFont(cellFont);
+
+
             var summarySheet = "Summary";
             ISheet summary = workbook.CreateSheet(summarySheet);
-            IRow status1 = summary.CreateRow(5);
-            status1.CreateCell(3).SetCellValue(@$"{statusDropdown[0]}");
+            IRow status1 = summary.CreateRow(3);
+            var c1 = status1.CreateCell(3);
+            c1.SetCellValue(@$"{statusDropdown[0]}");
+            c1.CellStyle = sCellStyle;
             status1.CreateCell(4).SetCellFormula($"CountIf({firstSheet}!S1:{firstSheet}!S{data.Count + 1},\"{statusDropdown[0]}\")");
 
-            IRow status2 = summary.CreateRow(6);
-            status2.CreateCell(3).SetCellValue(@$"{statusDropdown[1]}");
+            IRow status2 = summary.CreateRow(4);
+            var c2 = status2.CreateCell(3);
+            c2.SetCellValue(@$"{statusDropdown[1]}");
+            c2.CellStyle = sCellStyle;
             status2.CreateCell(4).SetCellFormula($"CountIf({firstSheet}!S1:{firstSheet}!S{data.Count + 1},\"{statusDropdown[1]}\")");
 
-            IRow status3 = summary.CreateRow(7);
-            status3.CreateCell(3).SetCellValue(@$"{statusDropdown[2]}");
+            IRow status3 = summary.CreateRow(5);
+            var c3 = status3.CreateCell(3);
+            c3.SetCellValue(@$"{statusDropdown[2]}");
+            c3.CellStyle = sCellStyle;
             status3.CreateCell(4).SetCellFormula($"CountIf({firstSheet}!S1:{firstSheet}!S{data.Count + 1},\"{statusDropdown[2]}\")");
+
+            IRow status4 = summary.CreateRow(6);
+            var c4 = status4.CreateCell(3);
+            c4.SetCellValue(@$"Total");
+            c4.CellStyle = sCellStyle;
+            status4.CreateCell(4).SetCellValue(data.Count);
+
+            var translatorCount = ColumnSummary(sheet, 5);
+            var authorCount = ColumnSummary(sheet, 3);
+            var publisherCount = ColumnSummary(sheet, 11);
+            var categoryCount = ColumnSummary(sheet, 12);
+
+            var maxCountList = new List<Dictionary<string, int>> { translatorCount, authorCount, publisherCount, categoryCount }
+           .OrderByDescending(list => list.Count()).First();
+
+            SetSummaryHeader(summary);
+            for (int i = 0; i < maxCountList.Count(); i++)
+            {
+                IRow dataRow = summary.CreateRow(i + 10);
+                if(authorCount.Count() >= i)
+                {
+                    dataRow.CreateCell(0).SetCellValue(authorCount.ElementAt(i).Key);
+                    dataRow.CreateCell(1).SetCellValue(authorCount.ElementAt(i).Value);
+                }
+
+                if(publisherCount.Count() >= i)
+                {
+                    dataRow.CreateCell(3).SetCellValue(publisherCount.ElementAt(i).Key);
+                    dataRow.CreateCell(4).SetCellValue(publisherCount.ElementAt(i).Value);
+                }
+
+              
+                if(translatorCount.Count() >= i)
+                {
+                    dataRow.CreateCell(6).SetCellValue(translatorCount.ElementAt(i).Key);
+                    dataRow.CreateCell(7).SetCellValue(translatorCount.ElementAt(i).Value);
+                }
+
+                if (categoryCount.Count() >= i)
+                {
+                    dataRow.CreateCell(9).SetCellValue(categoryCount.ElementAt(i).Key);
+                    dataRow.CreateCell(10).SetCellValue(categoryCount.ElementAt(i).Value);
+                }
+            }
+
             #endregion
 
             XSSFFormulaEvaluator.EvaluateAllFormulaCells(workbook);
@@ -292,7 +363,81 @@ namespace BookMarkApp.Models
             }
             return filePath;
         }
+        private static void SetSummaryHeader(ISheet summary)
+        {
+            try
+            {
+                IRow headingRow = summary.CreateRow(9);
+                headingRow.CreateCell(0).SetCellValue("Author");
+                headingRow.CreateCell(1).SetCellValue("Count");
 
+                headingRow.CreateCell(3).SetCellValue("Publisher");
+                headingRow.CreateCell(4).SetCellValue("Count");
+
+                headingRow.CreateCell(6).SetCellValue("Translator");
+                headingRow.CreateCell(7).SetCellValue("Count");
+
+                headingRow.CreateCell(9).SetCellValue("Category");
+                headingRow.CreateCell(10).SetCellValue("Count");
+
+                summary.SetColumnWidth(0, 6000);
+                summary.SetColumnWidth(3, 6000);
+                summary.SetColumnWidth(6, 6000);
+                summary.SetColumnWidth(9, 6000);
+            }
+            catch (Exception ex)
+            {
+            }     
+        }
+        private static void SetSummaryValue(IRow dataRow, Dictionary<string, int> data,int columnIndex)
+        {
+            try
+            {
+                    dataRow.CreateCell(0).SetCellValue(data.ElementAt(columnIndex).Key);
+                    dataRow.CreateCell(1).SetCellValue(data.ElementAt(columnIndex + 1).Value);
+                
+                //for (int i = 0; i < data.Count; i++)
+                //{
+                //    IRow dataRow = summary.CreateRow(i + 6);
+                //    dataRow.CreateCell(0).SetCellValue(data.ElementAt(i).Key);
+                //    dataRow.CreateCell(1).SetCellValue(data.ElementAt(i).Value);
+                //}
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        private static Dictionary<string, int> ColumnSummary(ISheet sheet, int cellNo)
+        {
+            try
+            {
+                // Group by and count the occurrences
+                Dictionary<string, int> valueCounts = new Dictionary<string, int>();
+                for (int rowIndex = 1; rowIndex <= sheet.LastRowNum; rowIndex++)
+                {
+                    IRow row = sheet.GetRow(rowIndex);
+                    string cellValue = GetCellValue(row.GetCell(cellNo));
+
+                    if(cellValue != null)
+                    {
+                        if (!valueCounts.ContainsKey(cellValue))
+                        {
+                            valueCounts[cellValue] = 1;
+                        }
+                        else
+                        {
+                            valueCounts[cellValue]++;
+                        }
+                    }
+                }
+                return valueCounts;
+            }
+            catch (Exception ex)
+            {
+                return new Dictionary<string, int>();
+            }
+        }
         public static void SetValue<T>(this T sender, string propertyName, object value)
         {
             var propertyInfo = sender.GetType().GetProperty(propertyName);
