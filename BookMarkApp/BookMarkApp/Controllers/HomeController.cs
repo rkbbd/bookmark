@@ -74,7 +74,10 @@ namespace BookMarkApp.Controllers
         {
             byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
             string fileName = @$"bookmark{DateTime.Now.ToString("yyyy_MM_dd_HHmmss")}.xlsx";
-
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
             return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
         public IActionResult Privacy()
