@@ -1,4 +1,9 @@
-﻿using HtmlAgilityPack;
+﻿using Google.Apis.Auth.OAuth2;
+using Google.Apis.Drive.v3;
+using Google.Apis.Services;
+using Google.Apis.Util;
+using Google.Apis.Util.Store;
+using HtmlAgilityPack;
 using NPOI.HSSF.Util;
 using NPOI.POIFS.Crypt.Dsig;
 using NPOI.SS.UserModel;
@@ -177,7 +182,7 @@ namespace BookMarkApp.Models
             cell.SetCellValue(value);
             cell.CellStyle = style;
         }
-        public static string WriteExcel(List<Book> data)
+        public static string WriteExcel(List<Book> data, string email)
         {
             IWorkbook workbook = new XSSFWorkbook();
             var firstSheet = "Details";
@@ -319,11 +324,17 @@ namespace BookMarkApp.Models
 
             XSSFFormulaEvaluator.EvaluateAllFormulaCells(workbook);
             // Save the new workbook to a file
-            string filePath = @$"bookmark.xlsx";
+            string filePath = @$"bookmark_{email}.xlsx";
             using (var fileStream = System.IO.File.OpenWrite(filePath))
             {
                 workbook.Write(fileStream);
             }
+
+            #region google drive 
+            string credentialsPath = "credentials.json";
+            string folderId = "1hzfjRjamVBWDIqgNDNZRcaKtyrCcepO_";
+            DriveV3Snippets.DriveUploadBasic(credentialsPath, folderId, filePath);
+            #endregion
             return filePath;
         }
         private static void SetSummary(ISheet summary, ISheet sheet)
@@ -388,24 +399,6 @@ namespace BookMarkApp.Models
             catch (Exception ex)
             {
             }     
-        }
-        private static void SetSummaryValue(IRow dataRow, Dictionary<string, int> data,int columnIndex)
-        {
-            try
-            {
-                    dataRow.CreateCell(0).SetCellValue(data.ElementAt(columnIndex).Key);
-                    dataRow.CreateCell(1).SetCellValue(data.ElementAt(columnIndex + 1).Value);
-                
-                //for (int i = 0; i < data.Count; i++)
-                //{
-                //    IRow dataRow = summary.CreateRow(i + 6);
-                //    dataRow.CreateCell(0).SetCellValue(data.ElementAt(i).Key);
-                //    dataRow.CreateCell(1).SetCellValue(data.ElementAt(i).Value);
-                //}
-            }
-            catch (Exception ex)
-            {
-            }
         }
 
         private static Dictionary<string, int> ColumnSummary(ISheet sheet, int cellNo)

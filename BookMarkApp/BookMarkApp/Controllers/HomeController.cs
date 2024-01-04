@@ -24,7 +24,7 @@ namespace BookMarkApp.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Index(string urls, IFormFile file)
+        public async Task<IActionResult> Index(string urls, string email, IFormFile file)
         {
             try
             {
@@ -59,9 +59,8 @@ namespace BookMarkApp.Controllers
                     }
                 }
 
-                string filePath = BookInfo.WriteExcel(books);
-
-
+                string filePath = BookInfo.WriteExcel(books, email);
+               
                 // Offer the new Excel file for download
                 return DownloadExcel(filePath);
             }
